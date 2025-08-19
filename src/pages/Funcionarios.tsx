@@ -754,8 +754,8 @@ export const Funcionarios: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Colaboradores</h2>
-          <p className="text-gray-600">Gerencie os colaboradores da empresa</p>
+          <h2 className="text-2xl font-bold text-white">Colaboradores</h2>
+          <p className="text-gray-400">Gerencie os colaboradores da empresa</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           {/* <Button variant="secondary" icon={FileText} onClick={generatePDF}>

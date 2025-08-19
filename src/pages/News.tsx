@@ -206,8 +206,8 @@ export const NewsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Comunicados</h2>
-          <p className="text-gray-600">
+          <h2 className="text-2xl font-bold text-white">Comunicados</h2>
+          <p className="text-gray-400">
             Fique por dentro das últimas novidades
           </p>
         </div>
@@ -241,7 +241,7 @@ export const NewsPage: React.FC = () => {
       {filteredNews.some((item) => item.destaque) && (
         <div>
           {/* Comunicado em Destaque */}
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">
+          <h3 className="text-lg font-semibold text-white mb-4">
             Comunicado em Destaque
           </h3>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
@@ -334,7 +334,7 @@ export const NewsPage: React.FC = () => {
 
       {/* Todos os comunicados */}
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">
+        <h3 className="text-lg font-semibold text-white mb-4">
           Todas os Comunicados
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

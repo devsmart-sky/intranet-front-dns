@@ -318,7 +318,7 @@ export const Users: React.FC = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-2xl font-bold text-white">Usuários</h2>
-          <p className="text-white">Gerencie os usuários do sistema</p>
+          <p className="text-gray-400">Gerencie os usuários do sistema</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
