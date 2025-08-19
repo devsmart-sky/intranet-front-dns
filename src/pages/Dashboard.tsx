@@ -48,7 +48,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
     const loadDocuments = async () => {
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/documento`
+          `${import.meta.env.VITE_API_URL}/api/documento`
         );
 
         const docsComUrls = res.data.map((doc: Document) => ({
@@ -69,7 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ onPageChange }) => {
   useEffect(() => {
     const loadNews = async () => {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/noticias`);
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/noticias`);
         setNews(res.data);
       } catch (err) {
         console.error("Erro ao buscar notícias:", err);

@@ -118,9 +118,9 @@ export const Users: React.FC = () => {
   const fetchUsuarios = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/usuarios`
+        `${import.meta.env.VITE_API_URL}/api/usuarios2`
       );
-
+      console.log(response.data);
       const fetchedUsers = response.data.map((user: User) => ({
         ...user,
         // Garante que o status seja 'Ativo' ou 'Inativo'
@@ -142,8 +142,9 @@ export const Users: React.FC = () => {
   const fetchFuncionariosEmail = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/usuarios/filtraFuncionario`
+        `${import.meta.env.VITE_API_URL}/api/usuarios2/filtraFuncionario`
       );
+      console.log
       if (Array.isArray(response.data)) {
         setFiltraFuncionarios(response.data);
 
@@ -186,7 +187,7 @@ export const Users: React.FC = () => {
 
       if (modalMode === "create") {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/usuarios`,
+          `${import.meta.env.VITE_API_URL}/api/usuarios2`,
           data,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -202,7 +203,7 @@ export const Users: React.FC = () => {
         showSuccessToast("Usuário criado com sucesso!");
       } else if (modalMode === "edit" && selectedUser) {
         const response = await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/usuarios/${selectedUser.id}`,
+          `${import.meta.env.VITE_API_URL}/api/usuarios2/${selectedUser.id}`,
           data,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -263,6 +264,7 @@ export const Users: React.FC = () => {
     }
   };
 
+  // Função para deletar usuário
   const handleDelete = async (id: string) => {
     const userToDelete = users.find((u) => u.id === id);
     const confirmed = await showDeleteConfirmation(
@@ -274,7 +276,7 @@ export const Users: React.FC = () => {
     if (confirmed) {
       try {
         await axios.delete(
-          `${import.meta.env.VITE_API_URL}/api/usuarios/${id}`
+          `${import.meta.env.VITE_API_URL}/api/usuarios2/${id}`
         );
         showSuccessToast("Usuário excluído com sucesso!");
         fetchUsuarios(); // Atualiza a lista após excluir
@@ -285,6 +287,7 @@ export const Users: React.FC = () => {
     }
   };
 
+  // Função para status do usuário
   const toggleUserStatus = async (id: string) => {
     const userToToggle = users.find((u) => u.id === id);
     if (!userToToggle) return;
@@ -292,7 +295,7 @@ export const Users: React.FC = () => {
     const newStatus = userToToggle.status === "Ativo" ? "Inativo" : "Ativo";
 
     try {
-      await axios.put(`${import.meta.env.VITE_API_URL}/api/usuarios/${id}`, {
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/usuarios2/${id}`, {
         ...userToToggle, // Envia todos os dados existentes
         status: newStatus,
       });
@@ -314,8 +317,8 @@ export const Users: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Usuários</h2>
-          <p className="text-gray-600">Gerencie os usuários do sistema</p>
+          <h2 className="text-2xl font-bold text-white">Usuários</h2>
+          <p className="text-white">Gerencie os usuários do sistema</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Button

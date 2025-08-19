@@ -91,7 +91,7 @@ export const NewsPage: React.FC = () => {
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/noticias`,
+          `${import.meta.env.VITE_API_URL}/api/noticias`,
           {
             titulo: formData.titulo,
             resumo: formData.resumo,
@@ -116,7 +116,7 @@ export const NewsPage: React.FC = () => {
     } else if (modalMode === "edit" && selectedNews) {
       try {
         const response = await axios.put(
-          `${import.meta.env.VITE_API_URL}/noticias/${
+          `${import.meta.env.VITE_API_URL}/api/noticias/${
             selectedNews.id_noticias
           }`,
           {
@@ -157,7 +157,7 @@ export const NewsPage: React.FC = () => {
     if (confirmed) {
       try {
         const responde = await axios.delete(
-          `${import.meta.env.VITE_API_URL}/noticias/${id}`
+          `${import.meta.env.VITE_API_URL}/api/noticias/${id}`
         );
 
         if (responde.status === 200) {
@@ -188,7 +188,7 @@ export const NewsPage: React.FC = () => {
   const getNoticias = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/noticias`
+        `${import.meta.env.VITE_API_URL}/api/noticias`
       );
 
       setNews(response.data);

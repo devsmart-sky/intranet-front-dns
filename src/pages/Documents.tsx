@@ -90,13 +90,13 @@ export const Documents: React.FC = () => {
 
     try {
       if (modalMode === "create") {
-        await axios.post(`${import.meta.env.VITE_API_URL}/documento`, form, {
+        await axios.post(`${import.meta.env.VITE_API_URL}/api/documento`, form, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         showSuccessToast("Documento criado com sucesso!");
       } else if (modalMode === "edit" && selectedDocument?.id_documento) {
         await axios.put(
-          `${import.meta.env.VITE_API_URL}/documento/${
+          `${import.meta.env.VITE_API_URL}/api/documento/${
             selectedDocument.id_documento
           }`,
           form,
@@ -126,7 +126,7 @@ export const Documents: React.FC = () => {
 
     if (confirmed) {
       try {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/documento/${id}`);
+        await axios.delete(`${import.meta.env.VITE_API_URL}/api/documento/${id}`);
         setDocumentos((prev) => prev.filter((doc) => doc.id_documento !== id)); // Atualizar a lista de documentos();
         showSuccessToast("Documento excluído com sucesso!");
       } catch (error) {
@@ -188,7 +188,7 @@ export const Documents: React.FC = () => {
   const getDocuments = async () => {
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_API_URL}/documento`
+        `${import.meta.env.VITE_API_URL}/api/documento`
       );
 
       const docsComUrls = response.data.map((doc: Document) => ({

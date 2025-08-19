@@ -156,17 +156,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Função para buscar dados do Office 365 após login
-  const fetchOffice365Data = async (email: string): Promise<any | null> => {
-    try {
-      const response = await axios.get(
-        `${window.location.origin}/intranet/api/office365/usuarios?email=${email}`
-      );
-      return response.data;
-    } catch (error) {
-      console.warn("⚠️ Não foi possível buscar dados do Office 365:", error);
-      return null;
-    }
-  };
+  // const fetchOffice365Data = async (email: string): Promise<any | null> => {
+  //   try {
+  //     const response = await axios.get(
+  //       `${window.location.origin}/intranet/api/office365/usuarios?email=${email}`
+  //     );
+  //     return response.data;
+  //   } catch (error) {
+  //     console.warn("⚠️ Não foi possível buscar dados do Office 365:", error);
+  //     return null;
+  //   }
+  // };
 
 
   const updateProfile = async (data: {

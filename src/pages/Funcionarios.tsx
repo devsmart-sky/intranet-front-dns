@@ -153,7 +153,7 @@ export const Funcionarios: React.FC = () => {
     const fetchPositions = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/cargos`
+          `${import.meta.env.VITE_API_URL}/api/cargos`
         );
 
         setPositions(response.data);
@@ -166,7 +166,7 @@ export const Funcionarios: React.FC = () => {
     const fetchDepartments = async () => {
       try {
         const response = await axios.get(
-          `${import.meta.env.VITE_API_URL}/departamentos`
+          `${import.meta.env.VITE_API_URL}/api/departamentos`
         );
         setDepartments(response.data);
       } catch (error) {

@@ -53,12 +53,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: UsersIcon,
       canView: hasPermission("canViewFuncionarios"),
     },
-    {
-      id: "positions",
-      label: "Cargos",
-      icon: Network,
-      canView: hasPermission("canViewPositions"),
-    },
+    // {
+    //   id: "positions",
+    //   label: "Cargos",
+    //   icon: Network,
+    //   canView: hasPermission("canViewPositions"),
+    // },
     {
       id: "organograma",
       label: "Organograma",
@@ -89,12 +89,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
       icon: UserRoundCog,
       canView: hasPermission("canViewUsers"),
     },
-    {
-      id: "passwordManagement",
-      label: "Gerenciamento",
-      icon: KeyRound,
-      canView: hasPermission("canViewPasswordManagement"),
-    },
+    // {
+    //   id: "passwordManagement",
+    //   label: "Gerenciamento",
+    //   icon: KeyRound,
+    //   canView: hasPermission("canViewPasswordManagement"),
+    // },
   ];
 
   return (
