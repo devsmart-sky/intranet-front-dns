@@ -1,31 +1,31 @@
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "./ui/Button";
-import { Input } from "./ui/Input";
+// import { Input } from "./ui/Input";
 import Logo from "../../public/horizonal_colorido.svg";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import { useAuth } from "../contexts/AuthContext";
-import { showErrorToast } from "./ui/Toast";
+// import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+// import { useAuth } from "../contexts/AuthContext";
+// import { showErrorToast } from "./ui/Toast";
 import Background from "../../public/background-smartsky.jpeg";
 
 // Configurações Azure AD
-const AZURE_CONFIG = {
-  CLIENT_ID: 'a16fa914-5401-4174-9c1d-7d63d8459f23',
-  TENANT_ID: 'e91a6cc0-d5e7-4937-8d70-78729dbc6b92',
-  REDIRECT_URI: 'https://portal.smartsky.tech/intranet',
-  SCOPE: 'openid profile email User.Read'
-};
+// const AZURE_CONFIG = {
+//   CLIENT_ID: 'a16fa914-5401-4174-9c1d-7d63d8459f23',
+//   TENANT_ID: 'e91a6cc0-d5e7-4937-8d70-78729dbc6b92',
+//   REDIRECT_URI: 'https://portal.smartsky.tech/intranet',
+//   SCOPE: 'openid profile email User.Read'
+// };
 
 export const LoginForm: React.FC = () => {
-  const [loginType, setLoginType] = useState<"sso" | "credentials">("credentials");
-  const [credentialsType, setCredentialsType] = useState<"email" | "username">("email");
-  const [formData, setFormData] = useState({
-    emailOrUsername: "",
-    password: "",
-  });
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  // const [loginType, setLoginType] = useState<"sso" | "credentials">("credentials");
+  // const [credentialsType, setCredentialsType] = useState<"email" | "username">("email");
+  // const [formData, setFormData] = useState({
+  //   emailOrUsername: "",
+  //   password: "",
+  // });
+  // const [showPassword, setShowPassword] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
 
-  const { login } = useAuth();
+  // const { login } = useAuth();
 
   // Função corrigida para SSO Azure AD
   // function LoginSingleSignon() {
@@ -62,39 +62,39 @@ export const LoginForm: React.FC = () => {
     window.location.href = "http://172.16.11.18:5000/api/singleSignon";
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // const handleSubmit = async (e: React.FormEvent) => {
+  //   e.preventDefault();
 
-    if (!formData.emailOrUsername || !formData.password) {
-      showErrorToast("Por favor, preencha todos os campos");
-      return;
-    }
+  //   if (!formData.emailOrUsername || !formData.password) {
+  //     showErrorToast("Por favor, preencha todos os campos");
+  //     return;
+  //   }
 
-    const payload: any = {
-      password: formData.password,
-      loginType: credentialsType
-    };
+  //   const payload: any = {
+  //     password: formData.password,
+  //     loginType: credentialsType
+  //   };
 
-    if (credentialsType === "email") {
-      payload.email = formData.emailOrUsername;
-    } else {
-      payload.username = formData.emailOrUsername;
-    }
+  //   if (credentialsType === "email") {
+  //     payload.email = formData.emailOrUsername;
+  //   } else {
+  //     payload.username = formData.emailOrUsername;
+  //   }
 
-    setIsLoading(true);
-    try {
-      const result = await login(payload);
+  //   setIsLoading(true);
+  //   try {
+  //     const result = await login(payload);
 
-      if (!result.success) {
-        showErrorToast(result.message || "Erro ao fazer login");
-      }
-    } catch (error) {
-      console.error("Erro no login:", error);
-      showErrorToast("Erro interno no sistema");
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (!result.success) {
+  //       showErrorToast(result.message || "Erro ao fazer login");
+  //     }
+  //   } catch (error) {
+  //     console.error("Erro no login:", error);
+  //     showErrorToast("Erro interno no sistema");
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
    return (
      <div className="min-h-screen relative flex items-center justify-center p-4">

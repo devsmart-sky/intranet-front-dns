@@ -148,7 +148,7 @@ export const Funcionarios: React.FC = () => {
     fetchFuncionarios();
   }, []);
 
-  // Função para buscar cargos
+  // Função para buscar cargos e departamentos
   useEffect(() => {
     const fetchPositions = async () => {
       try {
@@ -163,6 +163,7 @@ export const Funcionarios: React.FC = () => {
       }
     };
 
+    // Função para buscar departamentos
     const fetchDepartments = async () => {
       try {
         const response = await axios.get(
@@ -504,7 +505,8 @@ export const Funcionarios: React.FC = () => {
         return;
       } else if (modalMode === "edit" && selectedFuncionario) {
         const response = await axios.put(
-          `${import.meta.env.VITE_API_URL}/api/funcionarios/${selectedFuncionario.id_funcionario
+          `${import.meta.env.VITE_API_URL}/api/funcionarios/${
+            selectedFuncionario.id_funcionario
           }`,
           data,
           {
@@ -597,10 +599,10 @@ export const Funcionarios: React.FC = () => {
   // FUNCAO QUE BUSCA INFORMAÇOES DO FUNCIONARIO PELO OFFICE 365
   async function buscarFuncionario(email: string) {
     try {
-      const res = await fetch(`/api/usuarios?email=${email}`);
-      // const res = await fetch(
-      //   `${import.meta.env.VITE_API_URL}/api/office365/usuarios?email=${email}`
-      // );
+      // const res = await fetch(`/api/usuarios?email=${email}`);
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/usuarios?email=${email}`
+      );
       const dados = await res.json();
 
       // Exemplo de extração dos campos
@@ -754,8 +756,10 @@ export const Funcionarios: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Colaboradores</h2>
-          <p className="text-gray-400">Gerencie os colaboradores da empresa</p>
+          {/* <h2 className="text-2xl font-bold text-white">Colaboradores</h2> */}
+          <p className="text-2xl text-gray-300">
+            Gerencie os colaboradores da empresa
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           {/* <Button variant="secondary" icon={FileText} onClick={generatePDF}>
@@ -804,15 +808,16 @@ export const Funcionarios: React.FC = () => {
                 <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center mr-4">
                   {funcionario.foto ? (
                     <img
-                      src={`${import.meta.env.VITE_API_URL}/uploads/${funcionario.foto
-                        }`}
+                      src={`${import.meta.env.VITE_API_URL}/uploads/${
+                        funcionario.foto
+                      }`}
                       alt={funcionario.funcionario || "Funcionário"}
                       className="w-12 h-12 rounded-full object-cover"
                     />
                   ) : (
                     <span className="text-white font-semibold">
                       {funcionario.funcionario &&
-                        funcionario.funcionario.length > 0
+                      funcionario.funcionario.length > 0
                         ? funcionario.funcionario.charAt(0)
                         : ""}
                     </span>
@@ -823,10 +828,11 @@ export const Funcionarios: React.FC = () => {
                     {funcionario.funcionario}
                   </h3>
                   <p
-                    className={`text-sm ${!funcionario.cargo_365
-                      ? "text-red-600 font-semibold"
-                      : "text-gray-600"
-                      }`}
+                    className={`text-sm ${
+                      !funcionario.cargo_365
+                        ? "text-red-600 font-semibold"
+                        : "text-gray-600"
+                    }`}
                   >
                     {funcionario.cargo_365 || "Cargo não aplicado"}
                   </p>
@@ -841,22 +847,24 @@ export const Funcionarios: React.FC = () => {
                 </p>
                 <div className="flex items-center mt-2">
                   <span
-                    className={`px-2 py-1 text-xs font-medium rounded-full ${funcionario.tipo_contrato === "CLT"
-                      ? "bg-blue-100 text-blue-800"
-                      : funcionario.tipo_contrato === "PJ"
+                    className={`px-2 py-1 text-xs font-medium rounded-full ${
+                      funcionario.tipo_contrato === "CLT"
+                        ? "bg-blue-100 text-blue-800"
+                        : funcionario.tipo_contrato === "PJ"
                         ? "bg-green-100 text-green-800"
                         : funcionario.tipo_contrato === "EST"
-                          ? "bg-yellow-100 text-yellow-800"
-                          : "bg-gray-100 text-gray-800" // fallback se nenhum dos 3
-                      }`}
+                        ? "bg-yellow-100 text-yellow-800"
+                        : "bg-gray-100 text-gray-800" // fallback se nenhum dos 3
+                    }`}
                   >
                     {funcionario.tipo_contrato}
                   </span>
                   <span
-                    className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${funcionario.status == "Ativo"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-red-100 text-red-800"
-                      }`}
+                    className={`ml-2 px-2 py-1 text-xs font-medium rounded-full ${
+                      funcionario.status == "Ativo"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-red-100 text-red-800"
+                    }`}
                   >
                     {funcionario.status == "Ativo" ? "Ativo" : "Inativo"}
                   </span>
@@ -919,8 +927,8 @@ export const Funcionarios: React.FC = () => {
           modalMode === "create"
             ? "Novo Colaborador"
             : modalMode === "edit"
-              ? "Editar Colaborador"
-              : "Visualizar Colaborador"
+            ? "Editar Colaborador"
+            : "Visualizar Colaborador"
         }
         size="2xl"
       >

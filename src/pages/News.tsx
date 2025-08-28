@@ -91,7 +91,7 @@ export const NewsPage: React.FC = () => {
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/api/noticias`,
+          `${import.meta.env.VITE_API_URL}/noticias`,
           {
             titulo: formData.titulo,
             resumo: formData.resumo,
@@ -206,8 +206,8 @@ export const NewsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Comunicados</h2>
-          <p className="text-gray-400">
+          {/* <h2 className="text-2xl font-bold text-white">Comunicados</h2> */}
+          <p className="text-2xl text-gray-300">
             Fique por dentro das últimas novidades
           </p>
         </div>

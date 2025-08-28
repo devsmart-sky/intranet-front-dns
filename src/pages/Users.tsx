@@ -120,7 +120,7 @@ export const Users: React.FC = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/usuarios2`
       );
-      console.log(response.data);
+
       const fetchedUsers = response.data.map((user: User) => ({
         ...user,
         // Garante que o status seja 'Ativo' ou 'Inativo'
@@ -144,7 +144,6 @@ export const Users: React.FC = () => {
       const response = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/usuarios2/filtraFuncionario`
       );
-      console.log
       if (Array.isArray(response.data)) {
         setFiltraFuncionarios(response.data);
 
@@ -264,7 +263,6 @@ export const Users: React.FC = () => {
     }
   };
 
-  // Função para deletar usuário
   const handleDelete = async (id: string) => {
     const userToDelete = users.find((u) => u.id === id);
     const confirmed = await showDeleteConfirmation(
@@ -287,7 +285,6 @@ export const Users: React.FC = () => {
     }
   };
 
-  // Função para status do usuário
   const toggleUserStatus = async (id: string) => {
     const userToToggle = users.find((u) => u.id === id);
     if (!userToToggle) return;
@@ -317,8 +314,10 @@ export const Users: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-white">Usuários</h2>
-          <p className="text-gray-400">Gerencie os usuários do sistema</p>
+          {/* <h2 className="text-2xl font-bold text-gray-900">Usuários</h2> */}
+          <p className="text-2xl text-gray-300">
+            Gerencie os usuários do sistema
+          </p>
         </div>
         <div className="flex flex-col sm:flex-row gap-2">
           <Button
@@ -337,7 +336,7 @@ export const Users: React.FC = () => {
         </div>
       </div>
 
-      {/* Search */}
+      {/* Procurar */}
       <Card>
         <div className="p-4">
           <Input
@@ -349,7 +348,7 @@ export const Users: React.FC = () => {
         </div>
       </Card>
 
-      {/* Users List */}
+      {/* Lista de usuários */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {paginatedUsers.map((user) => (
           <Card key={user.id}>
@@ -443,7 +442,7 @@ export const Users: React.FC = () => {
         ))}
       </div>
 
-      {/* Fixed Bottom Pagination */}
+      {/* Footer de paginação */}
       <div className="fixed bottom-0 left-0 lg:left-64 right-0 bg-white border-t border-gray-200 shadow-lg z-40">
         <Pagination
           currentPage={currentPage}
@@ -495,7 +494,7 @@ export const Users: React.FC = () => {
                   email: selectedFuncionario?.email || "",
                 }));
               }}
-              disabled={modalMode === "view"}
+              disabled={modalMode === "view" || modalMode === "edit"}
               className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione um funcionário</option>

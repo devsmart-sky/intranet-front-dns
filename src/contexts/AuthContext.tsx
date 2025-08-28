@@ -71,12 +71,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
     },
   ]);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Configuração global do Axios
   useEffect(() => {
     // Interceptor para adicionar o token às requisições
     axios.interceptors.request.use(config => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("token") || sessionStorage.getItem("sessionToken");
       if (token && config.url?.startsWith('/intranet/api')) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -101,35 +102,83 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
   }, []);
 
+  // const updateOnlineStatus = async () => {
+  //   console.log(user);
+  //   if (!user) return;
+  //   try {
+  //     await axios.post(
+  //       'https://portal.smartsky.tech/intranet/api/online',
+  //       { userId: user.id || user.email }, // fallback
+  //       { timeout: 3000 }
+  //     );
+  //     console.log(`Status online atualizado para: ${status}`);
+  //   } catch (error) {
+  //     console.warn('Erro ao atualizar status online:', error);
+  //   }
+  // };
+
   useEffect(() => {
     const initializeAuth = async () => {
       try {
+
+        // Primeiro verifica sessionStorage (F5)
+        const sessionUser = sessionStorage.getItem("sessionUser");
+        const sessionToken = sessionStorage.getItem("sessionToken");
+
+        if (sessionUser && sessionToken) {
+
+          const parsedUser = JSON.parse(sessionUser);
+          setUser(parsedUser);
+
+          // Atualiza status online em background
+          // setTimeout(() => {
+          //   updateOnlineStatus().catch(console.error);
+          // }, 1000);
+
+          setIsLoading(false);
+          setIsInitialized(true);
+          return;
+        }
+
+        // Se não há session, verifica localStorage (login normal)
         const savedUser = localStorage.getItem("user");
         const savedToken = localStorage.getItem("token");
-        
+
         if (savedUser && savedToken) {
-          try {
-            // Verifica se o token é válido
-            await axios.get(`${window.location.origin}/intranet/api/auth/validate`, {
-              headers: { Authorization: `Bearer ${savedToken}` }
-            });
-            
-            const parsedUser = JSON.parse(savedUser);
-            setUser(parsedUser);
-          } catch (error) {
-            console.error("❌ Token inválido ou expirado:", error);
-            logout();
-          }
+
+          // Salva também no sessionStorage para persistência no F5
+          sessionStorage.setItem("sessionUser", savedUser);
+          sessionStorage.setItem("sessionToken", savedToken);
+
+          const parsedUser = JSON.parse(savedUser);
+          setUser(parsedUser);
+
+          // Atualiza status online em background
+          // setTimeout(() => {
+          //   updateOnlineStatus().catch(console.error);
+          // }, 1000);
+
+          // Validação do token em background (não bloqueante)
+          axios.get(`${window.location.origin}/intranet/api/auth/validate`, {
+            headers: { Authorization: `Bearer ${savedToken}` },
+            timeout: 5000
+          }).catch(() => {
+            console.log("Validação de token em background falhou - mantendo sessão");
+          });
         }
       } catch (error) {
         console.error("❌ Erro na inicialização:", error);
       } finally {
         setIsLoading(false);
+        setIsInitialized(true);
+
       }
     };
 
-    initializeAuth();
-  }, []);
+    if (!isInitialized) {
+      initializeAuth();
+    }
+  }, [isInitialized]);
 
   const unreadCount = notifications.filter(
     (n) => !n.isRead && n.toUserId === user?.id
@@ -156,25 +205,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   // Função para buscar dados do Office 365 após login
-  // const fetchOffice365Data = async (email: string): Promise<any | null> => {
-  //   try {
-  //     const response = await axios.get(
-  //       `${window.location.origin}/intranet/api/office365/usuarios?email=${email}`
-  //     );
-  //     return response.data;
-  //   } catch (error) {
-  //     console.warn("⚠️ Não foi possível buscar dados do Office 365:", error);
-  //     return null;
-  //   }
-  // };
-
+  const fetchOffice365Data = async (email: string): Promise<any | null> => {
+    try {
+      const response = await axios.get(
+        `${window.location.origin}/intranet/api/office365/usuarios?email=${email}`
+      );
+      return response.data;
+    } catch (error) {
+      console.warn("⚠️ Não foi possível buscar dados do Office 365:", error);
+      return null;
+    }
+  };
 
   const updateProfile = async (data: {
     photoFile?: File | null;
     [key: string]: any;
   }) => {
     if (!user) throw new Error("Usuário não está logado");
-    
+
     setIsLoading(true);
     try {
       const formData = new FormData();
@@ -195,9 +243,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           },
         }
       );
-      // ... restante do código
+
+      // Atualiza o usuário no estado e storage
+      const updatedUser = { ...user, ...response.data };
+      setUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+      sessionStorage.setItem("sessionUser", JSON.stringify(updatedUser));
+
     } catch (error) {
-      // ... tratamento de erro
+      console.error("Erro ao atualizar perfil:", error);
+      throw error;
     } finally {
       setIsLoading(false);
     }
@@ -207,16 +262,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setShowBirthdayBanner(false);
   };
 
-  // ✅ FUNÇÃO CORRIGIDA - loginWithUserData
   const loginWithUserData = async (userData: AuthUser) => {
-    
     try {
-      // ✅ Validar dados essenciais
       if (!userData.id || !userData.email) {
         throw new Error('Dados do usuário incompletos: faltam id ou email');
       }
 
-      // ✅ Garantir estrutura correta
       const completeUserData: AuthUser = {
         id: userData.id,
         username: userData.username,
@@ -226,6 +277,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         permissions: userData.permissions || {},
         photo: userData.photo,
         status: userData.status || 'Ativo',
+        token: userData.token,
         office365: userData.office365 || {
           displayName: "",
           jobTitle: "",
@@ -234,16 +286,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           businessPhones: ""
         }
       };
-      
-      // ✅ Definir usuário no estado
+
       setUser(completeUserData);
-      
-      // ✅ Salvar no localStorage
       localStorage.setItem("user", JSON.stringify(completeUserData));
-      
-      // ✅ Mostrar banner de aniversário
+      localStorage.setItem("token", userData.token || "");
+      sessionStorage.setItem("sessionUser", JSON.stringify(completeUserData));
+      sessionStorage.setItem("sessionToken", userData.token || "");
+
+      // await updateOnlineStatus();
       setShowBirthdayBanner(true);
-      
+
     } catch (error) {
       console.error("❌ AuthContext - Erro ao processar login SSO:", error);
       throw error;
@@ -254,18 +306,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     credentials: LoginCredentials
   ): Promise<{ success: boolean; message?: string }> => {
     setIsLoading(true);
-    
-    try {
-      // Faz o login local
-      const response = await axios.post(
-      `${window.location.origin}/intranet/api/login`,
-      credentials
-      );
-      console.log(credentials)
-      const data = response.data;
-      console.log(data)
 
-      // Cria o objeto do usuário a partir dos dados locais
+    try {
+      const response = await axios.post(
+        `${window.location.origin}/intranet/api/login`,
+        credentials
+      );
+
+      const data = response.data;
+
       const authUser: AuthUser = {
         id: data.user.id,
         username: data.user.username,
@@ -275,6 +324,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         permissions: data.user.permissions,
         photo: data.user.photo,
         status: data.user.status,
+        token: data.token,
         office365: {
           displayName: "",
           jobTitle: "",
@@ -284,18 +334,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       };
 
-      // Tenta buscar dados adicionais do Office 365
+      // Tenta buscar dados do Office 365
       try {
         const office365Data = await fetchOffice365Data(authUser.email);
-
         if (office365Data) {
-          // Enriquece os dados do usuário com informações do Office 365
           const enrichedUser: AuthUser = {
             ...authUser,
-            // Mantém dados locais como prioridade, mas adiciona dados do Office 365
             name: authUser.name || office365Data.displayName,
-            photo: office365Data.photo || authUser.photo, // Foto do Office 365 tem prioridade
-            // Adiciona novos campos do Office 365 (se necessário)
+            photo: office365Data.photo || authUser.photo,
             office365: {
               displayName: office365Data.displayName,
               jobTitle: office365Data.jobTitle,
@@ -304,21 +350,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               businessPhones: office365Data.businessPhones,
             }
           };
-
           setUser(enrichedUser);
           localStorage.setItem("user", JSON.stringify(enrichedUser));
+          sessionStorage.setItem("sessionUser", JSON.stringify(enrichedUser));
         } else {
-          // Se não conseguir buscar do Office 365, usa apenas dados locais
           setUser(authUser);
           localStorage.setItem("user", JSON.stringify(authUser));
+          sessionStorage.setItem("sessionUser", JSON.stringify(authUser));
         }
       } catch (office365Error) {
-        console.warn("⚠️ AuthContext - Erro ao buscar dados do Office 365, continuando apenas com dados locais:", office365Error);
         setUser(authUser);
         localStorage.setItem("user", JSON.stringify(authUser));
+        sessionStorage.setItem("sessionUser", JSON.stringify(authUser));
       }
 
       localStorage.setItem("token", data.token);
+      sessionStorage.setItem("sessionToken", data.token);
+
+      // await updateOnlineStatus();
       setShowBirthdayBanner(true);
 
       showSuccessToast("Login realizado com sucesso!");
@@ -335,19 +384,32 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    // Chamada opcional ao backend para logout
-    axios.post(`${window.location.origin}/intranet/api/logout`, {}, {
-      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-    }).catch(console.error);
-    
-    // Limpeza local
-    setUser(null);
-    setShowBirthdayBanner(false);
+    // Atualizar status offline antes de limpar
+    if (user) {
+      // Usando fetch com keepalive para garantir que a requisição seja enviada
+      fetch(`${window.location.origin}/intranet/api//offline`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: user.email }),
+        keepalive: true // Garante que a requisição seja completada mesmo após navegador fechar
+      }).catch(console.error);
+    }
+
+    // Limpa ambos storage
     localStorage.removeItem("user");
     localStorage.removeItem("token");
-    
-    // Limpa cookies de sessão se necessário
-    document.cookie = 'session=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+    sessionStorage.removeItem("sessionUser");
+    sessionStorage.removeItem("sessionToken");
+
+    setUser(null);
+    setShowBirthdayBanner(false);
+
+    // Chamada opcional ao backend para logout
+    axios.put(`${window.location.origin}/intranet/api/logout`, {}, {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    }).catch(console.error);
   };
 
   const contextValue: AuthContextType = {

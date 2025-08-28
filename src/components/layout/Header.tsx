@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Menu, Bell, User, Settings, LogOut, Users, Wifi } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
@@ -6,6 +6,7 @@ import { Input } from "../ui/Input";
 import { Button } from "../ui/Button";
 import { PhotoCapture } from "../ui/PhotoCapture";
 import { showSuccessToast, showErrorToast } from "../ui/Toast";
+import axios from "axios";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -28,40 +29,53 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [showOnlineUsers, setShowOnlineUsers] = useState(false);
   const [isUpdatingProfile, setIsUpdatingProfile] = useState(false);
+  const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+  const [isLoadingOnlineUsers, setIsLoadingOnlineUsers] = useState(false);
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
     photo: user?.photo || null,
     photoFile: null as File | null,
   });
+  
 
-  // Mock de usuários online
-  const onlineUsers = [
-    {
-      id: "1",
-      name: "Administrator",
-      email: "admin@intranet.com",
-      role: "admin",
-      lastActivity: new Date(),
-      isOnline: true,
-    },
-    {
-      id: "2",
-      name: "João Silva",
-      email: "joao@intranet.com",
-      role: "user",
-      lastActivity: new Date(Date.now() - 5 * 60 * 1000),
-      isOnline: true,
-    },
-    {
-      id: "3",
-      name: "Maria Santos",
-      email: "maria@intranet.com",
-      role: "user",
-      lastActivity: new Date(Date.now() - 15 * 60 * 1000),
-      isOnline: false,
-    },
-  ];
+  const fetchOnlineUsers = async () => {
+    try {
+      setIsLoadingOnlineUsers(true);
+      const response = await axios.get(
+        'https://portal.smartsky.tech/intranet/api/online'
+      );
+      console.log('Usuários online recebidos:', response.data);
+      setOnlineUsers(response.data);
+    } catch (error) {
+      console.error('Erro ao buscar usuários online:', error);
+      showErrorToast('Erro ao carregar usuários online');
+    } finally {
+      setIsLoadingOnlineUsers(false);
+    }
+  };
+
+  // Buscar usuários online quando abrir o dropdown
+  useEffect(() => {
+    if (showOnlineUsers) {
+      fetchOnlineUsers();
+
+      // Atualizar a cada 30 segundos enquanto estiver aberto
+      const interval = setInterval(fetchOnlineUsers, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [showOnlineUsers]);
+  
+
+  const handlerLogar = async () =>{
+    const email = profileData.email
+    const resposta = await axios.post('https://portal.smartsky.tech/intranet/api/online', {email})
+    console.log(resposta)
+  }
+
+  useEffect(() => {
+    handlerLogar()
+  }, [])
 
   const handleNotificationClick = (notificationId: string) => {
     markAsRead(notificationId);
@@ -128,6 +142,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
     return `${days}d atrás`;
   };
 
+
+  useEffect(() => {
+    console.log(onlineUsers)
+  }, [onlineUsers])
+
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -161,59 +180,76 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                     </h3>
                   </div>
                   <div className="max-h-64 overflow-y-auto">
-                    {onlineUsers.map((onlineUser) => (
-                      <div
-                        key={onlineUser.id}
-                        className="p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <div className="relative">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-                              <span className="text-white text-sm font-semibold">
-                                {onlineUser.name.charAt(0)}
-                              </span>
-                            </div>
-                            <div
-                              className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                                onlineUser.isOnline
+                    {isLoadingOnlineUsers ? (
+                      <div className="p-4 text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500 mx-auto"></div>
+                        <p className="text-sm text-gray-500 mt-2">Carregando...</p>
+                      </div>
+                    ) : onlineUsers.length === 0 ? (
+                      <div className="p-4 text-center text-gray-500">
+                        Nenhum usuário online
+                      </div>
+                    ) : (
+                      onlineUsers.map((onlineUser) => (
+                        <div
+                          key={onlineUser.id}
+                          className="p-3 hover:bg-gray-50 border-b border-green-100 last:border-b-0"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <div className="relative">
+                              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center overflow-hidden">
+                                {onlineUser.photo ? (
+                                  <img
+                                    src={`${import.meta.env.VITE_API_URL}/uploads/${onlineUser.photo}`}
+                                    alt={onlineUser.name}
+                                    className="w-8 h-8 object-cover"
+                                  />
+                                ) : (
+                                  <span className="text-white text-sm font-semibold">
+                                    {(onlineUser.name || onlineUser.email)?.charAt(0).toUpperCase()}
+                                  </span>
+
+                                )}
+                              </div>
+                              <div
+                                className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${onlineUser.isOnline
                                   ? "bg-green-500"
-                                  : "bg-gray-400"
-                              }`}
-                            ></div>
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
-                              {onlineUser.name}
-                            </p>
-                            <div className="flex items-center space-x-2">
-                              <span
-                                className={`px-2 py-1 text-xs rounded-full ${
-                                  onlineUser.role === "admin"
+                                  : "bg-green-500"
+                                  }`}
+                              ></div>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium text-gray-900 truncate">
+                                {onlineUser.name || onlineUser.email}
+                              </p>
+                              <div className="flex items-center space-x-2">
+                                <span
+                                  className={`px-2 py-1 text-xs rounded-full ${onlineUser.role === "admin"
                                     ? "bg-purple-100 text-purple-800"
                                     : "bg-blue-100 text-blue-800"
-                                }`}
-                              >
-                                {onlineUser.role === "admin"
-                                  ? "Admin"
-                                  : "Usuário"}
-                              </span>
-                              <span className="text-xs text-gray-500">
-                                {onlineUser.isOnline
-                                  ? "Online"
-                                  : formatTimeAgo(onlineUser.lastActivity)}
-                              </span>
+                                    }`}
+                                >
+                                  {onlineUser.role === "admin"
+                                    ? "Admin"
+                                    : "Usuário"}
+                                </span>
+                                {/* <span className="text-xs text-gray-500">
+                                  {onlineUser.isOnline
+                                    ? "Online"
+                                    : formatTimeAgo(new Date(onlineUser.lastActivity))}
+                                </span> */}
+                              </div>
                             </div>
-                          </div>
-                          <Wifi
-                            className={`w-4 h-4 ${
-                              onlineUser.isOnline
+                            <Wifi
+                              className={`w-4 h-4 ${onlineUser.isOnline
                                 ? "text-green-500"
-                                : "text-gray-400"
-                            }`}
-                          />
+                                : "text-green-500"
+                                }`}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -260,9 +296,8 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                           onClick={() =>
                             handleNotificationClick(notification.id)
                           }
-                          className={`p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors ${
-                            !notification.isRead ? "bg-blue-50" : ""
-                          }`}
+                          className={`p-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors ${!notification.isRead ? "bg-blue-50" : ""
+                            }`}
                         >
                           <div className="flex items-start space-x-3">
                             <span className="text-lg">
@@ -270,11 +305,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                             </span>
                             <div className="flex-1 min-w-0">
                               <p
-                                className={`text-sm font-medium ${
-                                  !notification.isRead
-                                    ? "text-gray-900"
-                                    : "text-gray-700"
-                                }`}
+                                className={`text-sm font-medium ${!notification.isRead
+                                  ? "text-gray-900"
+                                  : "text-gray-700"
+                                  }`}
                               >
                                 {notification.title}
                               </p>
@@ -313,11 +347,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                     <img
                       src={
                         typeof user.photo === "string" &&
-                        user.photo.startsWith("data:")
+                          user.photo.startsWith("data:")
                           ? user.photo
-                          : `${import.meta.env.VITE_API_URL}/uploads/${
-                              user.photo
-                            }`
+                          : `${import.meta.env.VITE_API_URL}/uploads/${user.photo
+                          }`
                       }
                       alt="Foto do usuário"
                       className="w-8 h-8 rounded-full object-cover"
@@ -342,11 +375,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                           <img
                             src={
                               typeof user.photo === "string" &&
-                              user.photo.startsWith("data:")
+                                user.photo.startsWith("data:")
                                 ? user.photo
-                                : `${import.meta.env.VITE_API_URL}/uploads/${
-                                    user.photo
-                                  }`
+                                : `${import.meta.env.VITE_API_URL}/uploads/${user.photo
+                                }`
                             }
                             alt="Foto do usuário"
                             className="w-12 h-12 rounded-full object-cover"
@@ -364,11 +396,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                         <div className="flex flex-col space-y-1 gap-1">
                           <p className="text-sm text-gray-600">{user?.email}</p>
                           <span
-                            className={`px-2 py-1 text-xs rounded-md ${
-                              user?.role === "admin"
-                                ? "bg-purple-100 text-purple-800"
-                                : "bg-blue-100 text-blue-800"
-                            }`}
+                            className={`px-2 py-1 text-xs rounded-md ${user?.role === "admin"
+                              ? "bg-purple-100 text-purple-800"
+                              : "bg-blue-100 text-blue-800"
+                              }`}
                           >
                             {user?.role === "admin"
                               ? "Administrador"
@@ -455,11 +486,10 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Nível de Acesso:</span>
                 <span
-                  className={`px-2 py-1 rounded-full text-xs ${
-                    user?.role === "admin"
-                      ? "bg-purple-100 text-purple-800"
-                      : "bg-blue-100 text-blue-800"
-                  }`}
+                  className={`px-2 py-1 rounded-full text-xs ${user?.role === "admin"
+                    ? "bg-purple-100 text-purple-800"
+                    : "bg-blue-100 text-blue-800"
+                    }`}
                 >
                   {user?.role === "admin" ? "Administrador" : "Usuário"}
                 </span>

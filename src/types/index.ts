@@ -89,6 +89,7 @@ export interface AuthUser {
   permissions: UserPermissions;
   photo?: string;
   status: string;
+  token: string;
   office365: {
     displayName: string;
     jobTitle: string;
@@ -169,6 +170,7 @@ export interface OnlineUser {
   role: 'admin' | 'user';
   lastActivity: Date;
   isOnline: boolean;
+  photo?: string;
 }
 
 export interface Colaboradores {

@@ -1,3 +1,37 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Scrollbar custom */
+@layer base {
+  /* Largura */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  /* Trilha */
+  ::-webkit-scrollbar-track {
+    background: transparent; /* pode trocar por uma cor */
+  }
+
+  /* Polegar (parte que desliza) */
+  ::-webkit-scrollbar-thumb {
+    background-color: #4b5563; /* cinza médio */
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  /* Polegar ao passar o mouse */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: #374151; /* cinza mais escuro */
+  }
+
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: #4b5563 transparent;
+  }
+}

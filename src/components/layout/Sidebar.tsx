@@ -6,12 +6,9 @@ import {
   FileText,
   Newspaper,
   LogOut,
-  // Share2,
-  Network,
   X,
   UserRoundCog,
   Building,
-  KeyRound,
 } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import Logo from "../../../public/horizontal_branco.svg";
@@ -109,8 +106,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       {/* Sidebar */}
       <div
-        className={`fixed lg:static left-0 top-0 h-full lg:h-screen w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out z-50 lg:z-0 flex flex-col ${isOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
+        className={`fixed lg:static left-0 top-0 h-full lg:h-screen w-64 bg-gradient-to-b from-gray-800 to-gray-900 text-white transform transition-transform duration-300 ease-in-out z-50 lg:z-0 flex flex-col ${
+          isOpen ? "translate-x-0" : "-translate-x-full"
+        } lg:translate-x-0`}
       >
         {/* Header */}
         <div className="p-4 border-b border-gray-700">
@@ -153,10 +151,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
                           onToggle();
                         }
                       }}
-                      className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${currentPage === item.id
+                      className={`w-full flex items-center px-3 py-2 rounded-lg transition-colors ${
+                        currentPage === item.id
                           ? "bg-blue-600 text-white"
                           : "text-gray-300 hover:bg-gray-700 hover:text-white"
-                        }`}
+                      }`}
                     >
                       <Icon className="w-5 h-5 mr-3" />
                       {item.label}
@@ -166,6 +165,66 @@ export const Sidebar: React.FC<SidebarProps> = ({
               })}
             </ul>
           </nav>
+          {/* Acessos rapidos */}
+          <div className="p-4 border-t border-gray-700 mt-auto">
+            <div className="mb-3">
+              <div className="text-xl text-white space-y-1">
+                <center>
+                  <label>Acessos rapidos</label>
+                </center>
+                <br />
+                <div className="flex items-center space-x-8 mt-4">
+                  <div className="flex flex-col items-center">
+                    <a
+                      href="https://smartsky-helpdesk.atlassian.net/servicedesk/customer/portal/2"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="jira.png"
+                        alt="Jira"
+                        className="w-12 h-16 object-contain hover:scale-105 transition-transform"
+                        title="Abertura de chamados T.I"
+                      />
+                    </a>
+                    <span className="text-sm mt-2">Jira</span>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <a
+                      href="https://smartsky.sienge.com.br/sienge/8/index.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="sienge.png"
+                        alt="Sienge"
+                        className="w-20 h-16 object-contain hover:scale-105 transition-transform"
+                        title="Sistema Sienge"
+                      />
+                    </a>
+                    <span className="text-sm mt-2">Sienge</span>
+                  </div>
+
+                  <div className="flex flex-col items-center">
+                    <a
+                      href="https://flashapp.com.br/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src="flash.png"
+                        alt="Sienge"
+                        className="w-16 h-16 object-contain hover:scale-105 transition-transform"
+                        title="Sistema Flash"
+                      />
+                    </a>
+                    <span className="text-sm mt-2">Flash</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* User Info & Logout */}
           <div className="p-4 border-t border-gray-700 mt-auto">
@@ -173,7 +232,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               <div className="text-xs text-gray-400 space-y-1">
                 <p>
                   Última atualização:
-                  <span className="text-white font-medium"> 11/08/2025 </span>
+                  <span className="text-white font-medium"> 28/08/2025 </span>
                 </p>
                 <p>
                   Versão: <span className="text-white font-medium"> v1.0</span>
