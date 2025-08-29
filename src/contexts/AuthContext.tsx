@@ -27,6 +27,7 @@ interface AuthContextType {
   }) => Promise<void>;
   showBirthdayBanner: boolean;
   hideBirthdayBanner: () => void;
+  // refreshOnlineUsers: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -179,6 +180,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       initializeAuth();
     }
   }, [isInitialized]);
+
+  // Função para atualizar status online (chamada manual)
+  // const refreshOnlineUsers = async () => {
+  //   if (!user?.email) return;
+  //   try {
+  //     await axios.get(
+  //       `${window.location.origin}/intranet/api/online`,
+  //       {
+  //         params: { email: user.email },
+  //         timeout: 3000,
+  //       }
+  //     );
+  //     console.log("✅ Status online atualizado com sucesso");
+  //   } catch (error) {
+  //     console.warn("❌ Erro ao atualizar status online:", error);
+  //   }
+  // };
 
   const unreadCount = notifications.filter(
     (n) => !n.isRead && n.toUserId === user?.id
@@ -425,6 +443,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     updateProfile,
     showBirthdayBanner,
     hideBirthdayBanner,
+    // refreshOnlineUsers,
   };
 
   return (

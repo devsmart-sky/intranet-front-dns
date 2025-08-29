@@ -91,7 +91,7 @@ export const NewsPage: React.FC = () => {
 
       try {
         const response = await axios.post(
-          `${import.meta.env.VITE_API_URL}/noticias`,
+          `${import.meta.env.VITE_API_URL}/api/noticias`,
           {
             titulo: formData.titulo,
             resumo: formData.resumo,

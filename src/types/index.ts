@@ -90,6 +90,7 @@ export interface AuthUser {
   photo?: string;
   status: string;
   token: string;
+  connectionError?: string;
   office365: {
     displayName: string;
     jobTitle: string;

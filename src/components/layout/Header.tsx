@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Menu, Bell, User, Settings, LogOut, Users, Wifi } from "lucide-react";
+import { Menu, Bell, User, Settings, LogOut, Users, Wifi, WifiOff, RefreshCw } from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
 import { Modal } from "../ui/Modal";
 import { Input } from "../ui/Input";
@@ -22,6 +22,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
     markAllAsRead,
     updateProfile,
     logout,
+    // refreshOnlineUsers,
   } = useAuth();
 
   const [showNotifications, setShowNotifications] = useState(false);
@@ -37,7 +38,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
     photo: user?.photo || null,
     photoFile: null as File | null,
   });
-  
+
 
   const fetchOnlineUsers = async () => {
     try {
@@ -65,11 +66,11 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
       return () => clearInterval(interval);
     }
   }, [showOnlineUsers]);
-  
 
-  const handlerLogar = async () =>{
+
+  const handlerLogar = async () => {
     const email = profileData.email
-    const resposta = await axios.post('https://portal.smartsky.tech/intranet/api/online', {email})
+    const resposta = await axios.post('https://portal.smartsky.tech/intranet/api/online', { email })
     console.log(resposta)
   }
 
@@ -147,6 +148,57 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
     console.log(onlineUsers)
   }, [onlineUsers])
 
+  // Função para atualizar o status online do usuário e buscar a lista atualizada
+  const refreshOnlineUsersLocal = async () => {
+    if (!user?.email) return;
+    try {
+      await axios.get(
+        `${window.location.origin}/intranet/api/online`,
+        {
+          params: { email: user.email },
+          timeout: 3000,
+        }
+      );
+      fetchOnlineUsers();
+      showSuccessToast("Lista de usuários atualizada!", 1000);
+    } catch (error) {
+      console.warn("❌ Erro ao atualizar status online:", error);
+      showErrorToast("Erro ao atualizar status online");
+    }
+  };
+
+  // const handleRefreshOnlineUsers = () => {
+  //   refreshOnlineUsers();
+  //   showSuccessToast("Lista de usuários atualizada!", 1000);
+  // };
+
+  const getConnectionStatus = () => {
+    if (user?.connectionError) {
+      return {
+        color: "text-red-500",
+        bgColor: "bg-red-500",
+        icon: WifiOff,
+        text: "Erro de conexão",
+      };
+    }
+    if (user && !user.connectionError) {
+      return {
+        color: "text-green-500",
+        bgColor: "bg-green-500",
+        icon: Wifi,
+        text: "Conectado",
+      };
+    }
+    return {
+      color: "text-yellow-500",
+      bgColor: "bg-yellow-500",
+      icon: WifiOff,
+      text: "Desconectado",
+    };
+  };
+
+  const connectionStatus = getConnectionStatus();
+
   return (
     <>
       <header className="bg-white shadow-sm border-b border-gray-200">
@@ -167,18 +219,39 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
               <button
                 onClick={() => setShowOnlineUsers(!showOnlineUsers)}
                 className="text-gray-600 hover:text-gray-900 transition-colors relative"
+                title={`${onlineUsers.length} usuários online - ${connectionStatus.text}`}
               >
                 <Users className="w-6 h-6" />
-                <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                <span
+                  className={`absolute -top-1 -right-1 w-3 h-3 ${connectionStatus.bgColor
+                    } rounded-full ${connectionStatus ? "animate-pulse" : ""
+                    }`}
+                ></span>
+                {onlineUsers.length > 0 && (
+                  <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                    {onlineUsers.length > 9 ? "9+" : onlineUsers.length}
+                  </span>
+                )}
               </button>
 
               {showOnlineUsers && (
                 <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-lg shadow-xl border border-gray-200 z-50">
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="font-semibold text-gray-900">
-                      Usuários Online
-                    </h3>
+                  <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <h3 className="font-semibold text-gray-900">
+                        Usuários Online
+                      </h3>
+
+                    </div>
+                    <button
+                      onClick={refreshOnlineUsersLocal}
+                      className="text-gray-500 hover:text-gray-700 p-1 rounded"
+                      title="Atualizar lista"
+                    >
+                      <RefreshCw className="w-4 h-4" />
+                    </button>
                   </div>
+
                   <div className="max-h-64 overflow-y-auto">
                     {isLoadingOnlineUsers ? (
                       <div className="p-4 text-center">
@@ -254,6 +327,7 @@ export const Header: React.FC<HeaderProps> = ({ onMenuToggle, title }) => {
                 </div>
               )}
             </div>
+
 
             {/* Notifications */}
             <div className="relative">
